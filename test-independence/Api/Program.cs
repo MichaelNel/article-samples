@@ -10,6 +10,9 @@ var app = builder.Build();
 
 app.MapPost("/fruit", async (NpgsqlConnection db, FruitRequest request) =>
 {
+    var existingFruit = db.QueryFirstOrDefault<Fruit>("SELECT * FROM Fruit WHERE Name = @Name", new { request.Name });
+    if (existingFruit != null) return Results.Conflict();
+
     await db.ExecuteAsync("INSERT INTO Fruit(Name) VALUES (@Name)", new { request.Name });
     return Results.Created();
 });
